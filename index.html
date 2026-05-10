@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>LOVE SYSTEM</title>
+
+<style>
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: #0b0c10;
+    color: #e6e6e6;
+    font-family: monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+
+  #container {
+    width: 100%;
+    max-width: 720px;
+  }
+
+  #startScreen {
+    text-align: center;
+  }
+
+  #startBtn {
+    padding: 12px 24px;
+    border: 1px solid #aaa;
+    background: transparent;
+    color: #fff;
+    cursor: pointer;
+  }
+
+  .line {
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fade 0.6s forwards;
+    margin: 14px 0;
+    line-height: 1.7;
+  }
+
+  @keyframes fade {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ⭐ 핵심: 처음엔 무조건 숨김 */
+  #choice {
+    margin-top: 30px;
+    display: none; /* 이게 핵심 */
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  button {
+    padding: 12px 16px;
+    border: 1px solid #aaa;
+    background: transparent;
+    color: #fff;
+    cursor: pointer;
+    margin: 6px;
+    font-size: 14px;
+  }
+
+  button:active {
+    transform: scale(0.97);
+  }
+
+  #noBtn {
+    position: relative;
+    transition: transform 0.25s ease;
+  }
+
+  #finalText {
+    margin-top: 26px;
+    font-size: 15px;
+    line-height: 1.8;
+    white-space: pre-wrap;
+  }
+
+  .cursor {
+    display: inline-block;
+    margin-left: 2px;
+    animation: blink 0.8s infinite;
+  }
+
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+
+  @media (max-width: 600px) {
+    button {
+      width: 100%;
+      max-width: 280px;
+    }
+
+    #choice {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<div id="container">
+
+  <div id="startScreen">
+    <button id="startBtn">START</button>
+  </div>
+
+  <div id="log"></div>
+
+  <div id="choice">
+    <button id="yesBtn">YES</button>
+    <button id="noBtn">NO</button>
+  </div>
+
+  <div id="finalText"></div>
+
+</div>
+
+<script>
+
+const act1 = [
+`BOOTING LOVE SYSTEM...`,
+`loading memories...`,
+`loading you...`,
+`✔ system detected: "you"`
+];
+
+const act2 = [
+`이건 한 사람을 위한 프로그램이에요.`,
+`그 사람은 지금 이 화면을 보고 있는 형이고.`,
+
+`나는 요즘, 이유 없이 안정되는 순간이 있는데`,
+`그 중심에는 항상 형이 있어요.`,
+
+`그래서 물어보려고 해요.`,
+`형은 이 버그 같은 감정 속에서`,
+`나와 계속 같은 라인에 있어줄 수 있어요?`
+];
+
+const finalLines = [
+`특별한 이유가 있어서가 아니라,`,
+`그냥 형이 내 옆에 있어준다는 사실 하나만으로`,
+`요즘의 내가 조금 더 괜찮아졌어요.`,
+
+`말로 다 설명할 수는 없는데,`,
+`형은 내 하루의 기본값 같은 사람이에요.`,
+`그래서 고마워요.`,
+`그리고... 앞으로도 잘 부탁해요.`
+];
+
+const startBtn = document.getElementById("startBtn");
+const startScreen = document.getElementById("startScreen");
+const log = document.getElementById("log");
+const choice = document.getElementById("choice");
+const yesBtn = document.getElementById("yesBtn");
+const noBtn = document.getElementById("noBtn");
+const finalText = document.getElementById("finalText");
+
+let i = 0;
+let j = 0;
+
+// START
+startBtn.addEventListener("click", () => {
+  startScreen.style.display = "none";
+  runAct1();
+});
+
+// 1막
+function runAct1() {
+  if (i >= act1.length) {
+    setTimeout(() => {
+      clearLog();
+      runAct2();
+    }, 800);
+    return;
+  }
+
+  const div = document.createElement("div");
+  div.className = "line";
+  div.textContent = act1[i];
+  log.appendChild(div);
+
+  i++;
+  setTimeout(runAct1, 900);
+}
+
+// 2막 + 버튼 타이밍
+function runAct2() {
+  if (j >= act2.length) {
+
+    const lastLine = document.createElement("div");
+    lastLine.className = "line";
+    lastLine.textContent = "......";
+    log.appendChild(lastLine);
+
+    lastLine.addEventListener("animationend", () => {
+      setTimeout(() => {
+        choice.style.display = "flex"; // ⭐ 여기서만 등장
+      }, 800);
+    });
+
+    return;
+  }
+
+  const div = document.createElement("div");
+  div.className = "line";
+  div.textContent = act2[j];
+  log.appendChild(div);
+
+  j++;
+
+  setTimeout(runAct2, 900);
+}
+
+// 리셋
+function clearLog() {
+  log.innerHTML = "";
+  finalText.innerHTML = "";
+}
+
+// NO 도망
+noBtn.addEventListener("mouseenter", () => {
+  const x = Math.random() * 200 - 100;
+  const y = Math.random() * 60 - 30;
+  noBtn.style.transform = `translate(${x}px, ${y}px)`;
+});
+
+// YES → 3막
+yesBtn.addEventListener("click", async () => {
+
+  clearLog();
+  choice.style.display = "none";
+
+  const first = document.createElement("div");
+  first.className = "line";
+  first.textContent = "사랑해.";
+  finalText.appendChild(first);
+
+  const cursor = document.createElement("span");
+  cursor.className = "cursor";
+  cursor.textContent = "▍";
+  finalText.appendChild(cursor);
+
+  await new Promise(r => setTimeout(r, 3000));
+
+  cursor.remove();
+
+  for (let line of finalLines) {
+    await typeLine(line);
+  }
+});
+
+function typeLine(text) {
+  return new Promise(resolve => {
+    const el = document.createElement("div");
+    finalText.appendChild(el);
+
+    let i = 0;
+
+    function typing() {
+      if (i < text.length) {
+        el.textContent += text[i];
+        i++;
+        setTimeout(typing, 35);
+      } else {
+        resolve();
+      }
+    }
+
+    typing();
+  });
+}
+
+</script>
+
+</body>
+</html>
